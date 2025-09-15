@@ -2,27 +2,27 @@ version: "3.8"
 
 services:
   n8n:
-    # Build from your custom Dockerfile (same folder)
     build:
       context: .
-      dockerfile: Dockerfile
-    image: yourdockerhubuser/n8n-puppeteer:latest   # push to DockerHub if using Coolify remote builds
-
+      dockerfile: Dockerfile   # points to the fixed Debian-based Dockerfile
+    image: yourdockerhubuser/n8n-puppeteer:latest
     restart: always
 
     ports:
       - "5678:5678"
 
     environment:
-      # Core n8n settings
+      # --- Basic Auth (change these) ---
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=yourpassword
+
+      # --- Host & Protocol ---
       - N8N_HOST=yourdomain.com
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
 
-      # Puppeteer Chromium path
+      # --- Puppeteer Chromium Path ---
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
     volumes:
