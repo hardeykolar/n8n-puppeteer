@@ -1,16 +1,12 @@
-# 1. Start from official n8n image
-FROM n8nio/n8n:latest
+# 1. Use Debian-based n8n image
+FROM n8nio/n8n:1.81.1-debian
 
 # 2. Switch to root for installation
 USER root
 
-# 3. Install dependencies & chromium from Playwright repo
-RUN apt-get update && apt-get install -y wget gnupg ca-certificates \
- && wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
- && wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg \
- && install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/ \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
- && apt-get update && apt-get install -y --no-install-recommends \
+# 3. Install Chromium & dependencies
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     chromium \
     ca-certificates \
     fonts-liberation \
@@ -31,13 +27,15 @@ RUN apt-get update && apt-get install -y wget gnupg ca-certificates \
     libxshmfence1 \
     xdg-utils \
     unzip \
+    wget \
+    gnupg \
  && rm -rf /var/lib/apt/lists/*
 
-# 4. Set Puppeteer to use installed Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
-# 5. Install puppeteer
+# 4. Install Puppeteer globally
 RUN npm install -g puppeteer
 
-# 6. Switch back to n8n user
+# 5. Set Puppeteer to use system Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# 6. Switch back to node user
 USER node
