@@ -1,17 +1,19 @@
-# 1. Start from the official n8n image
+# 1. Start from official n8n image
 FROM n8nio/n8n:latest
 
-# 2. Switch to root to install dependencies
+# 2. Switch to root for installation
 USER root
 
-# 3. Install required dependencies for Puppeteer/Chromium
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 3. Install dependencies & chromium from Playwright repo
+RUN apt-get update && apt-get install -y wget gnupg ca-certificates \
+ && wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
+ && wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg \
+ && install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/ \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
+ && apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
     ca-certificates \
     fonts-liberation \
-    wget \
-    gnupg \
-    unzip \
-    xdg-utils \
     libnss3 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
@@ -27,7 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpangocairo-1.0-0 \
     libpango-1.0-0 \
     libxshmfence1 \
-    chromium \
+    xdg-utils \
+    unzip \
  && rm -rf /var/lib/apt/lists/*
 
 # 4. Set Puppeteer to use installed Chromium
